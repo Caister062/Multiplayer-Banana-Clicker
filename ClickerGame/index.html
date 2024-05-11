@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Clicker</title>
+    <style>
+        .banana-img {
+			cursor: pointer;
+			width: 200px;
+			transition: transform 0.1s ease;
+		}
+
+		.banana-img:active {
+			transform: scale(0.9);
+		}
+
+		.btn {
+			margin-top: 10px;
+			padding: 10px 20px;
+			background-color: #ffdd57;
+			border: none;
+			border-radius: 5px;
+			font-size: 16px;
+			transition: background-color 0.3s, transform 0.2s;
+			cursor: pointer;
+		}
+
+		.btn:hover {
+			background-color: #ffcc33;
+		}
+
+		.btn:active {
+			transform: translateY(2px);
+		}
+
+		body {
+			font-family: 'Arial', sans-serif;
+			background-color: #fafafa;
+			color: #333;
+		}
+
+		.game-container {
+			max-width: 600px;
+			margin: 0 auto;
+			padding: 20px;
+			background-color: #fff;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+		}
+
+		#score {
+			font-size: 32px; /* Larger font size for better visibility */
+			color: #4a7c59; /* A vibrant color that stands out */
+			font-weight: bold; /* Make it bold to draw attention */
+			padding: 10px 0; /* Padding for better spacing */
+			background-color: #ffdd57; /* A subtle background color */
+			border-radius: 5px; /* Rounded corners for a softer look */
+			box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+			margin-top: 20px; /* Ensure it's nicely spaced from elements above */
+			text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Slight text shadow for better legibility */
+		}
+
+		#score {
+			font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300))); /* Responsive font size */
+		}
+
+		.upgrade-btn {
+			display: block; /* makes the button take the full width of its container */
+			margin: 10px auto; /* centers the button and adds margin for spacing */
+			padding: 12px 20px; /* comfortable padding for clicking */
+			font-size: 18px; /* larger font size for clarity */
+			color: white; /* text color */
+			background-color: #4CAF50; /* distinct green color */
+			border: none; /* removes default border */
+			border-radius: 8px; /* rounded corners */
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* subtle shadow for depth */
+			cursor: pointer; /* cursor indicates it's clickable */
+			transition: background-color 0.3s, transform 0.2s; /* smooth transition for feedback */
+		}
+
+		.upgrade-btn:hover {
+			background-color: #45a049; /* slightly darker green on hover */
+		}
+
+		.upgrade-btn:active {
+			transform: translateY(2px); /* subtle push effect on click */
+		}
+
+		@keyframes flash {
+			0%, 100% { color: #4a7c59; }
+			50% { color: #ffffff; }
+		}
+
+		#score {
+			animation: flash 0.5s ease-out;
+		}
+
+		@media (max-width: 600px) {
+			.game-container {
+				width: 90%;
+				padding: 10px;
+			}
+
+			.btn, .upgrade-btn {
+				font-size: 14px;
+				padding: 8px 16px;
+			}
+
+			#score {
+				font-size: 24px; /* Smaller font size for mobile devices */
+			}
+		}
+
+		.achievements-container {
+			margin-top: 20px;
+			padding: 10px;
+			background-color: #f9f9f9;
+			border-radius: 5px;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+
+		@keyframes pop {
+			0% { transform: scale(0.5); opacity: 0; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(1); opacity: 1; }
+		}
+
+		.achievement-unlocked {
+			animation: pop 0.6s ease;
+			color: #4CAF50;
+			font-weight: bold;
+			margin-top: 10px;
+			padding: 10px;
+			background-color: #fff3cd;
+			border-left: 5px solid #4CAF50;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+
+		.banana-img {
+			transition: transform 0.2s ease;
+			cursor: pointer;
+			width: 200px;
+		}
+
+		.banana-img:hover {
+			transform: scale(1.1); /* Enlarge on hover */
+		}
+
+		.banana-img:active {
+			transform: scale(0.9); /* Shrink briefly on click */
+		}
+
+		.btn, .upgrade-btn {
+			transition: transform 0.2s, box-shadow 0.2s;
+			cursor: pointer;
+		}
+
+		.btn:hover, .upgrade-btn:hover {
+			transform: translateY(-2px); /* Lift button on hover */
+			box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+		}
+
+		.btn:active, .upgrade-btn:active {
+			transform: translateY(1px); /* Depress button on click */
+		}
+
+
+		body {
+			transition: background-color 0.5s ease;
+			background-color: #f7f7f7; /* Default light background */
+		}
+
+		.game-container {
+			background-color: #fff;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+			transition: background-color 0.5s ease;
+		}
+
+		.progress-bar-container {
+			width: 100%;
+			padding: 3px;
+			margin-top: 20px; /* Ensure spacing */
+			box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+			overflow: hidden; /* Hide overflow within the container */
+		}
+
+		.progress-bar {
+			height: 10px;
+			background-color: #4CAF50;
+			width: 0%; /* Updated dynamically, ensure it does not exceed 100% */
+			transition: width 0.4s ease-in-out;
+		}
+
+		body, html {
+			width: 100%;
+			margin: 0;
+			padding: 0;
+			overflow-x: hidden; /* Prevent horizontal overflow */
+		}
+
+		.game-container {
+			max-width: 600px;
+			width: 90%; /* Adjust based on preference */
+			margin: 0 auto;
+			box-sizing: border-box; /* Include padding and border in the element's width */
+		}
+
+		.level-display {
+			font-size: 24px; /* Set a font size that is visible and matches the scale of other elements */
+			color: #4a7c59; /* A vibrant color that stands out, matching the score display */
+			font-weight: bold; /* Make it bold to draw attention */
+			background-color: #ffdd57; /* A subtle background color to highlight the level info */
+			padding: 10px; /* Padding for better spacing */
+			border-radius: 5px; /* Rounded corners for a softer look */
+			box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+			margin: 10px 0; /* Margin to space it from other elements */
+			text-align: center; /* Center the text for better aesthetics */
+			box-sizing: border-box; /* Include padding in width and height calculations */
+			width: 100%; /* Ensure it spans the full width of its container */
+			transition: background-color 0.5s ease; /* Smooth transition for any background color change */
+		}
+
+		@media (max-width: 600px) {
+			.level-display {
+				font-size: 18px; /* Adjust font size for smaller screens */
+			}
+		}
+
+		.double-click-effect {
+			transform: scale(1.2); /* Enlarge the element */
+			background-color: #4CAF50; /* Change the background color */
+			transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transition for both properties */
+		}
+
+		.btn {
+			margin-top: 10px;
+			margin-bottom: 10px; /* Add this line if it's not already there */
+			padding: 10px 20px;
+			background-color: #ffdd57;
+			border: none;
+			border-radius: 5px;
+			font-size: 16px;
+			transition: background-color 0.3s, transform 0.2s;
+			cursor: pointer;
+		}
+
+		.chat-container {
+			position: fixed;
+			bottom: 0;
+			right: 0;
+			width: 300px;
+			background-color: #fff;
+			border: 1px solid #ccc;
+			padding: 10px;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+		}
+		.chat-messages {
+			height: 150px;
+			overflow-y: auto;
+			margin-bottom: 10px;
+			padding: 5px;
+			border: 1px solid #ccc;
+		}
+		#chatInput {
+			width: calc(100% - 90px);
+			padding: 5px;
+			margin-right: 5px;
+		}
+		#sendButton {
+			width: 80px;
+		}
+
+		.halloween-theme {
+			background-color: #290001; /* Dark background for a spooky feel */
+			color: #ff6700; /* Orange text suitable for Halloween */
+		}
+
+		.halloween-theme .btn, .halloween-theme .upgrade-btn {
+			background-color: #442200; /* Dark brown background for buttons */
+			color: #ff6700;
+		}
+
+		.halloween-theme .btn:hover, .halloween-theme .upgrade-btn:hover {
+			background-color: #663300; /* Lighter brown on hover */
+		}
+
+		.halloween-theme .game-container {
+			border-color: #ff6700; /* Orange borders for the container */
+		}
+
+		.halloween-theme img.banana-img {
+			filter: drop-shadow(0px 0px 10px #ff6700); /* Orange glow around the banana */
+		}
+
+		.event-countdown {
+			position: fixed;
+			top: 10px; /* Starting position at the top */
+			right: 10px;
+			padding: 10px;
+			background-color: #ffdd57;
+			color: #333;
+			border-radius: 8px;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+			z-index: 1000; /* Ensure it appears above other content */
+			font-size: 18px;
+			width: auto; /* Adjust width as necessary */
+		}
+
+		#eventCountdown {
+			top: 10px; /* Maintain consistent spacing */
+		}
+
+		.banana-img:active {
+			transform: scale(0.85); /* Shrink on click */
+			filter: brightness(150%); /* Briefly change brightness */
+		}
+
+		@keyframes flashScore {
+			from { color: #ffdd57; }
+			to { color: #4a7c59; }
+		}
+
+		.score-increase {
+			animation: flashScore 0.5s;
+		}
+
+		body {
+			transition: background-color 0.5s ease;
+		}
+
+		@keyframes popIn {
+			0% { transform: scale(0); opacity: 0; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(1); opacity: 1; }
+		}
+
+		.new-level-notification {
+			animation: popIn 1s ease-out;
+		}
+
+		#bossContainer.hidden {
+			display: none;
+		}
+
+		.boss-img {
+			width: 300px; /* Adjust size as needed */
+			cursor: pointer;
+		}
+
+		#bossHealthBar {
+			width: 100%;
+			background-color: #ddd;
+			border-radius: 5px;
+			margin-top: 10px;
+		}
+
+		.health-bar {
+			height: 20px;
+			background-color: red;
+			width: 100%; /* Start full */
+			border-radius: 5px;
+			transition: width 0.5s ease;
+		}
+
+    </style>
+
+</head>
+
+<body>
+
+    <div id="gameContainer" class="game-container">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<h1>Banana Clicker</h1>
+		<div id="bossCountdown" class="event-countdown">Next Boss Battle: <span id="bossTimer">Loading...</span></div>
+		<img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg" alt="Banana" id="bananaImg" class="banana-img" />
+		<div id="score" class="score">Bananas: 0</div>
+		<div id="levelDisplay" class="level-display">Level: 1</div>
+		<button id="increaseClickValue" class="btn">Increase Bananas Per Click (Cost: 10 Bananas)</button>
+		<button id="saveGame" class="btn">Save Game</button>
+		<button id="loadGame" class="btn">Load Game</button>
+		<button id="resetGame" class="btn">Reset Game</button>
+		<button id="buyAutoClicker" class="btn">Buy Auto-Clicker (Cost: 100 Bananas)</button>
+		<div id="upgrades" class="upgrades"></div>
+		<div id="achievements" class="achievements-container">
+			<h3>Achievements</h3>
+			<!-- Unlocked achievements will be displayed here -->
+		</div>
+		<div id="progressBarContainer" class="progress-bar-container">
+			<div id="progressBar" class="progress-bar"></div>
+		</div>
+
+		<div id="statsContainer" class="stats-container">
+			<h3>Statistics</h3>
+			<p id="totalClicks">Total Clicks: 0</p>
+			<p id="bananasPerSecond">Bananas per Second: 0</p>
+			<p id="timePlayed">Time Played: 0s</p>
+		</div>
+
+		<div id="dailyRewardContainer" class="daily-reward-container">
+			<button id="claimDailyReward" class="btn">Claim Daily Reward</button>
+			<p id="nextRewardCountdown">Next Reward: 24h</p>
+		</div>
+
+		<div id="bossContainer" class="hidden">
+			<img src="BossImages/FireDragon.png" id="bossImg" class="boss-img" />
+			<div id="bossHealthBar">
+				<div id="bossHealth" class="health-bar"></div>
+			</div>
+		</div>
+	</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+
+        let score = 0;
+
+        let bananasPerClick = 1;
+
+        let autoClickerCost = 100;
+
+        let autoClickerCount = 0;
+
+		let currentLevel = 1;
+
+		let isGoldenBananaActive = false;
+
+		let totalClicks = 0;
+
+		let startTime = Date.now();
+
+		let bossHealth = 1000;
+
+		let bossActive = false;
+
+		const powerUps = [
+			{ id: "doubleBanana", cost: 200, duration: 10000, effect() { bananasPerClick *= 2; } },
+			{ id: "fastClick", cost: 300, duration: 5000, effect() { autoClickerCount += 2; } }
+		];
+
+		function updateStats() {
+			totalClicks++;
+			document.getElementById('totalClicks').textContent = 'Total Clicks: ' + totalClicks;
+			let elapsedTime = (Date.now() - startTime) / 1000;
+			document.getElementById('timePlayed').textContent = 'Time Played: ' + Math.floor(elapsedTime) + 's';
+			document.getElementById('bananasPerSecond').textContent = 'Bananas per Second: ' + (score / elapsedTime).toFixed(2);
+		}
+
+		setInterval(updateStats, 1000); // Update stats every second
+
+		function activatePowerUp(powerUp) {
+			powerUp.effect();
+			setTimeout(() => {
+				if (powerUp.id === "doubleBanana") bananasPerClick /= 2;
+				if (powerUp.id === "fastClick") autoClickerCount -= 2;
+			}, powerUp.duration);
+		}
+
+        let upgrades = [
+
+            //{id: "doubleClick", cost: 50, purchased: false, effect: () => { bananasPerClick *= 100; }, description: "Double your bananas per click!"}
+
+            // Add more upgrades here
+
+        ];
+
+
+		document.getElementById('resetGame').addEventListener('click', function() {
+			if (confirm('Are you sure you want to reset the game?')) {
+				localStorage.clear();
+				location.reload(); // Reload the page to reset the game
+			}
+		});
+
+		function activatePowerUp(type) {
+			switch (type) {
+				case 'doubleBananas':
+					bananasPerClick *= 2;
+					setTimeout(() => bananasPerClick /= 2, 10000);  // Effect lasts for 10 seconds
+					break;
+				case 'speedAutoClicker':
+					autoClickerCount *= 2;
+					setTimeout(() => autoClickerCount /= 2, 10000);  // Effect lasts for 10 seconds
+					break;
+				// Add other power-up cases here
+			}
+		}
+
+
+		function saveGameState() {
+			const gameState = {
+				score: score,
+				bananasPerClick: bananasPerClick,
+				autoClickerCost: autoClickerCost,
+				autoClickerCount: autoClickerCount
+			};
+			localStorage.setItem('gameState', JSON.stringify(gameState));
+		}
+
+		function loadGameState() {
+			const savedState = JSON.parse(localStorage.getItem('gameState'));
+			if (savedState) {
+				score = savedState.score;
+				bananasPerClick = savedState.bananasPerClick;
+				autoClickerCost = savedState.autoClickerCost;
+				autoClickerCount = savedState.autoClickerCount;
+				updateScoreDisplay();
+			}
+		}
+
+		function checkLevelProgress() {
+			if (score >= currentLevel * 1000) { // Example threshold
+				currentLevel++;
+				bananasPerClick += currentLevel; // Increase click value per level
+				updateBackground(currentLevel);  // Change background per level
+				alert("Welcome to Level " + currentLevel + "!");
+			}
+		}
+
+		document.addEventListener('DOMContentLoaded', loadGameState);
+
+		const achievements = [
+			{ id: "first100", title: "First 100 Bananas", description: "Collect 100 bananas.", goal: 100, achieved: false },
+			{ id: "firstUpgrade", title: "Upgrader", description: "Purchase your first upgrade.", goal: 1, achieved: false },
+			{ id: "autoClickerMaster", title: "Auto-Clicker Master", description: "Purchase 5 auto-clickers.", goal: 5, achieved: false }
+		];
+
+		function checkAchievements() {
+			achievements.forEach(achievement => {
+				if (!achievement.achieved) {
+					let achieved = false;
+					switch(achievement.id) {
+						case "first100":
+							achieved = score >= achievement.goal;
+							break;
+						case "firstUpgrade":
+							achieved = upgrades.some(upgrade => upgrade.purchased);
+							break;
+						case "autoClickerMaster":
+							achieved = autoClickerCount >= achievement.goal;
+							break;
+					}
+					if (achieved) {
+						achievement.achieved = true;
+						alert(`Achievement unlocked: ${achievement.title}`);
+						// Display the achievement somewhere on the page
+						displayAchievement(achievement);
+					}
+				}
+			});
+		}
+
+		document.getElementById('claimDailyReward').addEventListener('click', function() {
+			const lastClaim = parseInt(localStorage.getItem('lastDailyRewardClaim'), 10);
+			const now = new Date().getTime();
+			if (!lastClaim || now - lastClaim > 86400000) { // 24 hours
+				score += 100; // Example reward
+				localStorage.setItem('lastDailyRewardClaim', now);
+				updateScoreDisplay();
+				alert('You have claimed your daily reward: 100 bananas!');
+			} else {
+				alert('Your next reward is not yet available.');
+			}
+		});
+
+		function updateDailyRewardCountdown() {
+			const lastClaim = parseInt(localStorage.getItem('lastDailyRewardClaim'), 10);
+			const now = new Date().getTime();
+			const nextClaimTime = lastClaim + 86400000;
+			const timeLeft = nextClaimTime - now;
+			if (timeLeft > 0) {
+				document.getElementById('nextRewardCountdown').textContent = 'Next Reward: ' + Math.ceil(timeLeft / 3600000) + 'h';
+			} else {
+				document.getElementById('nextRewardCountdown').textContent = 'Claim your daily reward now!';
+			}
+		}
+
+		setInterval(updateDailyRewardCountdown, 3600000); // Update every hour
+
+		function saveToCloud(data) {
+			// Placeholder for API call to save data to the cloud
+			console.log('Saving to cloud:', data);
+		}
+
+		function loadFromCloud(callback) {
+			// Placeholder for API call to load data from the cloud
+			console.log('Loading from cloud');
+			callback(localStorage.getItem('gameState')); // Example using localStorage temporarily
+		}
+
+		function updateProgressBar(currentValue, maxValue) {
+			const percentage = (currentValue / maxValue) * 100;
+			document.getElementById('progressBar').style.width = percentage + '%';
+		}
+
+		function unlockReward(achievement) {
+			if (achievement.id === "first100") {
+				score += 50; // Reward 50 bonus bananas
+				updateScoreDisplay();
+			} else if (achievement.id === "speedyClicker") {
+				bananasPerClick *= 2; // Double the bananas per click for 30 seconds
+				setTimeout(() => bananasPerClick /= 2, 30000);
+			}
+		}
+
+		function showTutorialStep(step) {
+			const tutorialMessage = document.getElementById('tutorialMessage');
+			tutorialMessage.textContent = step.message;
+			tutorialMessage.style.display = 'block';
+		}
+
+		// Function to check this timed achievement
+		function checkTimedAchievement(bananas) {
+			timedAchievement.tempScore += bananas;
+			if (!timedAchievement.timer) {
+				timedAchievement.timer = setTimeout(() => {
+					if (timedAchievement.tempScore >= timedAchievement.goal && !timedAchievement.achieved) {
+						timedAchievement.achieved = true;
+						alert(`Achievement unlocked: ${timedAchievement.title}`);
+						displayAchievement(timedAchievement);
+					}
+					timedAchievement.tempScore = 0;
+					clearTimeout(timedAchievement.timer);
+					timedAchievement.timer = null;
+				}, 60000); // Reset after one minute
+			}
+		}
+
+		function updateBackground(level) {
+			const colors = ['#fdfd96', '#77dd77', '#84b6f4', '#ffb347', '#ff6961'];
+			document.body.style.backgroundColor = colors[level % colors.length];
+		}
+
+		function displayAchievement(achievement) {
+			const container = document.getElementById('achievements');
+			const achievementDiv = document.createElement('div');
+			achievementDiv.className = 'achievement-unlocked';
+			achievementDiv.textContent = `Achievement unlocked: ${achievement.title} - ${achievement.description}`;
+			container.appendChild(achievementDiv);
+			unlockReward(achievement); // Unlock associated rewards
+		}
+
+
+        document.getElementById('bananaImg').addEventListener('click', function() {
+			score += bananasPerClick;
+			updateScoreDisplay();
+			checkUpgrades();
+			checkAchievements(); // Check achievements after every click
+		});
+
+
+
+        document.getElementById('increaseClickValue').addEventListener('click', function() {
+
+            if(score >= 10) {
+
+                score -= 10;
+
+                bananasPerClick += 1;
+
+                updateScoreDisplay();
+
+            } else {
+
+                alert("You need more bananas!");
+
+            }
+
+        });
+
+		function startBossCountdown(duration) {
+			let timer = duration, minutes, seconds;
+			const displayElement = document.getElementById('bossTimer');
+			const intervalId = setInterval(() => {
+				minutes = parseInt(timer / 60, 10);
+				seconds = parseInt(timer % 60, 10);
+
+				minutes = minutes < 10 ? "0" + minutes : minutes;
+				seconds = seconds < 10 ? "0" + seconds : seconds;
+
+				displayElement.textContent = minutes + ":" + seconds;
+
+				if (--timer < 0) {
+					clearInterval(intervalId);
+					displayElement.textContent = "Boss battle starts!";
+					triggerBossBattle();  // Function to start the boss battle
+				}
+			}, 1000);
+		}
+
+		// Example: Start countdown when the player reaches level 5
+		function checkLevelProgress() {
+			if (score >= currentLevel * 1000) {
+				currentLevel++;
+				bananasPerClick += currentLevel;
+				updateBackground(currentLevel);
+				alert("Welcome to Level " + currentLevel + "!");
+
+				if (currentLevel === 5) {
+					startBossCountdown(300); // 300 seconds countdown
+				}
+			}
+		}
+
+		function updateBossHealthDisplay() {
+			const healthPercent = Math.max(bossHealth / 1000 * 100, 0);
+			document.getElementById('bossHealth').style.width = healthPercent + '%';
+			if (bossHealth <= 0) {
+				defeatBoss();
+			}
+		}
+
+		function triggerBossBattle() {
+			bossActive = true;
+			document.getElementById('bossContainer').classList.remove('hidden');
+			updateBossHealthDisplay();
+		}
+		function defeatBoss() {
+			alert("Boss defeated! Reward: 5000 bananas");
+			score += 5000;
+			bossActive = false;
+			bossHealth = 1000; // Prepare for the next boss battle
+			document.getElementById('bossContainer').classList.add('hidden');
+			startBossCountdown(600); // Example: next boss battle in 10 minutes
+		}
+
+		document.getElementById('bossImg').addEventListener('click', () => {
+			if (bossActive) {
+				bossHealth -= bananasPerClick; // Assume each click reduces boss health by the current bananas per click
+				updateBossHealthDisplay();
+				if (bossHealth <= 0) {
+					defeatBoss();
+				}
+			}
+		});
+
+		function updateBossHealthDisplay() {
+			const healthPercent = Math.max(bossHealth / 1000 * 100, 0); // Convert health to percentage
+			document.getElementById('bossHealth').style.width = healthPercent + '%';
+		}
+
+		function defeatBoss() {
+			alert("Boss defeated! Reward: 5000 bananas");
+			score += 5000;
+			bossActive = false;
+			bossHealth = 1000; // Reset boss health for next battle
+			document.getElementById('bossContainer').classList.add('hidden');
+			updateScoreDisplay();
+		}
+
+		setInterval(() => {
+			if (!bossActive && Math.random() < 0.01) { // Example: 1% chance every second to trigger a boss
+				triggerBossBattle();
+			}
+		}, 1000);
+
+        document.getElementById('buyAutoClicker').addEventListener('click', function() {
+
+            if(score >= autoClickerCost) {
+
+                score -= autoClickerCost;
+
+                autoClickerCost = Math.floor(autoClickerCost * 1.15);
+
+                autoClickerCount += 1;
+
+                updateScoreDisplay();
+
+                updateAutoClickers();
+
+				checkAchievements(); // Check achievements after buying an auto-clicker
+
+            } else {
+
+                alert("You need more bananas!");
+
+            }
+
+        });
+
+
+
+        function updateAutoClickers() {
+
+            if(autoClickerCount > 0) {
+
+                setInterval(() => {
+
+                    score += autoClickerCount;
+
+                    updateScoreDisplay();
+
+                    checkUpgrades();
+
+                }, 1000);
+
+            }
+
+        }
+		const events = [
+			{
+				id: "halloween",
+				startDate: new Date('October 31, 2024'),
+				endDate: new Date('November 1, 2024'),
+				effect: () => { bananasPerClick *= 2; },
+				revertEffect: () => { bananasPerClick /= 2; }
+			}
+		];
+
+
+        function updateScoreDisplay() {
+			const scoreElement = document.getElementById('score');
+			scoreElement.textContent = 'Bananas: ' + score;
+			scoreElement.classList.add('score-increase');
+			setTimeout(() => scoreElement.classList.remove('score-increase'), 500);
+		}
+
+        function checkUpgrades() {
+			const upgradesContainer = document.getElementById("upgrades");
+			upgrades.forEach(upgrade => {
+				let existingButton = document.querySelector("#" + upgrade.id); // Check if the button already exists
+				if (!upgrade.purchased && score >= upgrade.cost && !existingButton) {
+					let upgradeBtn = document.createElement("button");
+					upgradeBtn.id = upgrade.id;
+					upgradeBtn.className = "upgrade-btn";
+					upgradeBtn.innerText = upgrade.description + " (Cost: " + formatNumber(upgrade.cost) + " Bananas)";
+					upgradeBtn.onclick = function() {
+						if (score >= upgrade.cost) {
+							score -= upgrade.cost;
+							upgrade.effect();
+							upgrade.purchased = true;
+							upgradeBtn.classList.add("hidden"); // Optionally remove the button
+							updateScoreDisplay();
+						}
+					};
+					upgradesContainer.appendChild(upgradeBtn);
+				}
+			});
+		}
+
+		function formatNumber(num) {
+			if (num < 1000) return num.toString(); // Returns the number as a string if it's less than 1000
+			let si = [
+				{ value: 1E12, symbol: "t" },
+				{ value: 1E9, symbol: "b" },
+				{ value: 1E6, symbol: "m" },
+				{ value: 1E3, symbol: "k" }
+			];
+			for (let i = 0; i < si.length; i++) {
+				if (num >= si[i].value) {
+					return (num / si[i].value).toFixed(1).replace(/\.0+$/, '') + si[i].symbol;
+				}
+			}
+			return num.toString(); // Fallback if none of the above conditions apply
+		}
+
+
+        updateScoreDisplay(); // Initial display update
+
+    </script>
+
+</body>
+
+</html>
